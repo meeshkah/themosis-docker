@@ -10,6 +10,18 @@ DEV_CERTIFICATE_KEY_FILE := themosis.dev.key
 DEV_CERTIFICATE_CRT_FILE := themosis.dev.pem
 DEV_CERTIFICATE_DHPARAM_FILE := dhparam.dev.pem
 
+# Cosmetics
+GREEN := "\e[1;32m"
+NC := "\e[0m"
+
+# Shell functions
+INFO := @bash -c '\
+	printf $(GREEN); \
+	echo "=> $$1"; \
+	printf $(NC)' VALUE
+
+.PHONY: dev
+
 dev:
 	${INFO} "Creating development database volume..."
 	@ docker volume create --name db
