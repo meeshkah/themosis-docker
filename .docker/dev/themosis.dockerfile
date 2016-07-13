@@ -20,13 +20,18 @@ RUN apt-get install -y curl php-cli php-mbstring git unzip wget python-pip
 RUN \
   apt-get install -y nginx && \
   rm -rf /var/lib/apt/lists/* && \
-  echo "\ndaemon off;" >> /etc/nginx/nginx.conf && \
   chown -R www-data:www-data /var/lib/nginx
 
+# Remove default settings
+RUN rm /etc/nginx/nginx.conf
 RUN rm /etc/nginx/sites-enabled/default
 
+# Create config from tempalte
+COPY nginx/themosis.nginx.conf.template /tmp/nginx.conf.template
+RUN envsubst < /tmp/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'
+
 # Define mountable directories.
-# VOLUME ["/etc/nginx/sites-enabled", "/etc/nginx/certs", "/etc/nginx/conf.d", "/var/log/nginx", "/var/www/html"]
+VOLUME ["/etc/nginx/certs", "/var/www"]
 
 # Expose ports.
 EXPOSE 80
@@ -46,6 +51,9 @@ RUN mv composer.phar /usr/local/bin/composer
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 RUN chmod +x wp-cli.phar
 RUN mv wp-cli.phar /usr/local/bin/wp
+
+# Install ngxtop, useful for debugging
+RUN pip install ngxtop
 
 # Forward request and error logs to docker log collector
 RUN ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log
