@@ -10,11 +10,11 @@ RUN add-apt-repository -y ppa:nginx/stable
 
 RUN \
   apt-get update && \
-  apt-get -y upgrade \
+  apt-get -y upgrade && \
   apt-get install -y software-properties-common
 
 # Basic Requirements
-RUN apt-get install -y curl php-cli php-mbstring git unzip wget python-pip
+RUN apt-get install -y curl php php-cli php-mbstring git unzip wget python-pip gettext
 
 # Install nGinx
 RUN \
@@ -27,8 +27,8 @@ RUN rm /etc/nginx/nginx.conf
 RUN rm /etc/nginx/sites-enabled/default
 
 # Create config from tempalte
-COPY nginx/themosis.nginx.conf.template /tmp/nginx.conf.template
-RUN envsubst < /tmp/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'
+COPY .docker/dev/nginx/themosis.nginx.conf.template /tmp/nginx.conf.template
+RUN envsubst < /tmp/nginx.conf.template > /etc/nginx/nginx.conf
 
 # Define mountable directories.
 VOLUME ["/etc/nginx/certs", "/var/www"]
@@ -43,9 +43,9 @@ RUN apt-get install -y php-curl php-gd php-mcrypt php-xml php-xmlrpc
 WORKDIR /
 
 # Install Composer
-RUN curl -sS https://getcomposer.org/installer | php
-RUN chmod +x composer.phar
-RUN mv composer.phar /usr/local/bin/composer
+# RUN curl -sS https://getcomposer.org/installer | php
+# RUN chmod +x composer.phar
+# RUN mv composer.phar /usr/local/bin/composer
 
 # Install WP-CLI
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar

@@ -6,19 +6,21 @@ THEMOSIS_REPO := themosis/themosis
 
 DEV_COMPOSE_FILE := docker-compose.development.yml
 
-DEV_CERTIFICATE_KEY_FILE := themosis.dev.key
-DEV_CERTIFICATE_CRT_FILE := themosis.dev.pem
-DEV_CERTIFICATE_DHPARAM_FILE := dhparam.dev.pem
+DEV_CERTIFICATE_KEY_FILE := certs/themosis.dev.key
+DEV_CERTIFICATE_CRT_FILE := certs/themosis.dev.pem
+DEV_CERTIFICATE_DHPARAM_FILE := certs/dhparam.dev.pem
 
 # Cosmetics
-GREEN := "\e[1;32m"
+YELLOW := "\e[1;33m"
 NC := "\e[0m"
 
 # Shell functions
 INFO := @bash -c '\
-	printf $(GREEN); \
+	printf $(YELLOW); \
 	echo "=> $$1"; \
 	printf $(NC)' VALUE
+
+ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 .PHONY: dev
 
@@ -28,25 +30,25 @@ dev:
 	${INFO} "Creating development cache volume..."
 	@ docker volume create --name cache
 	${INFO} "Checking for Themosis..."
-ifeq ("$(wildcard $(THEMOSIS_PATH)/.gitkeep)","")
+ifeq (,$(wildcard '$(ROOT_DIR)/$(THEMOSIS_PATH)/.gitkeep'))
 	${INFO} "Installing Themosis. Sit tight..."
 	@ rm -Rf $(THEMOSIS_PATH)
-	@ git clone $(THEMOSIS_REPO) $(THEMOSIS_PATH)
+	@ git clone git@github.com:$(THEMOSIS_REPO) $(THEMOSIS_PATH)
 	@ cd $(THEMOSIS_PATH) && composer install && cd ..
 else
 	${INFO} "Themosis exists. No need to install..."
 endif
 	${INFO} "Resolving certificates..."
-ifneq ("$(wildcard $(DEV_CERTIFICATE_KEY_FILE))","")
-	@ openssl req -x509 -newkey rsa:2048 -keyout certs/$(DEV_CERTIFICATE_KEY_FILE) -out certs/$(DEV_CERTIFICATE_CRT_FILE) -days 30 -nodes -subj '/CN=localhost'
-else
+ifeq (,$(wildcard '$(ROOT_DIR)/$(DEV_CERTIFICATE_KEY_FILE)'))
 	${INFO} "Keys exist"
+else
+	@ openssl req -x509 -newkey rsa:2048 -keyout $(DEV_CERTIFICATE_KEY_FILE) -out $(DEV_CERTIFICATE_CRT_FILE) -days 30 -nodes -subj '/CN=localhost'
 endif
 	${INFO} "Sorting out forward secrecy..."
-ifneq ("$(wildcard $(DEV_CERTIFICATE_DHPARAM_FILE))","")
-	@ openssl dhparam -out certs/$(DEV_CERTIFICATE_DHPARAM_FILE) 2048
-else
+ifeq (,$(wildcard '$(ROOT_DIR)/$(DEV_CERTIFICATE_DHPARAM_FILE)'))
 	${INFO} "All is safe"
+else
+	@ openssl dhparam -out certs/$(DEV_CERTIFICATE_DHPARAM_FILE) 4096
 endif
 	${INFO} "Creating development images..."
 	@ docker-compose -f $(DEV_COMPOSE_FILE) build
