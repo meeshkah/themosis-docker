@@ -1,7 +1,7 @@
 #!/bin/bash
 USER_PASS=`openssl rand -base64 8`
 
-cd /var/www/htdocs/cms
+cd /var/www/htdocs
 if ! $(wp core is-installed --allow-root); then
   echo >&2 "Switching Wordpress on..."
   wp core config --dbname=_MYSQL_DATABASE_ \

@@ -71,9 +71,15 @@ RUN sed -i "/# server_name_in_redirect off;/ a\fastcgi_cache_path /var/run/nginx
 COPY .docker/dev/themosis/entry-point.sh /tmp/entry-point.sh
 RUN mv /tmp/entry-point.sh /entry-point.sh
 RUN chmod +x entry-point.sh
-COPY .docker/dev/db/init-wordpress.sh /tmp/init-wordpress.sh
+COPY .docker/dev/themosis/init-wordpress.sh /tmp/init-wordpress.sh
 RUN mv /tmp/init-wordpress.sh /init-wordpress.sh
 RUN chmod +x init-wordpress.sh
+COPY .docker/dev/themosis/environment.php /tmp/environment.php
+RUN mv /tmp/environment.php /environment.php
 
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+ENTRYPOINT ["/entry-point.sh"]
+RUN service php7.0-fpm start
+CMD ["nginx", "-g", "daemon off;"]

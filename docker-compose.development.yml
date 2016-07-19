@@ -25,15 +25,15 @@ services:
       - db
       - cache
     volumes:
-      - themosis:/var/www
+      - ./themosis:/var/www
       - .certs:/etc/nginx/certs
     ports:
       - "80:80"
       - "443:443"
     env_file:
-      - .docker/dev/env/themosis.development.env
       - .docker/dev/env/db.development.env
-    entrypoint: /entry-point.sh
+      - .docker/dev/env/themosis.development.env
+    # entrypoint: /entry-point.sh
     networks:
       - themosis-network
 
