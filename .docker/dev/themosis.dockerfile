@@ -15,7 +15,7 @@ RUN \
   apt-get update && apt-get upgrade -y
 
 # Basic Requirements
-RUN apt-get install -y git unzip wget python-pip gettext
+RUN apt-get install -y git unzip wget python-pip
 
 # Install nGinx
 RUN \
@@ -27,9 +27,9 @@ RUN \
 RUN rm /etc/nginx/nginx.conf
 RUN rm /etc/nginx/sites-enabled/default
 
-# Create config from tempalte
-COPY .docker/dev/nginx/themosis.nginx.conf.template /tmp/nginx.conf.template
-RUN envsubst '$WP_ENV $WP_HOME' < /tmp/nginx.conf.template > /etc/nginx/nginx.conf
+# Copy in nGinx config
+COPY .docker/dev/nginx/themosis.nginx.conf /tmp/nginx.conf
+RUN mv /tmp/nginx.conf /etc/nginx/nginx.conf
 
 # Define mountable directories.
 VOLUME ["/etc/nginx/certs", "/var/www"]
@@ -38,7 +38,7 @@ VOLUME ["/etc/nginx/certs", "/var/www"]
 EXPOSE 80
 EXPOSE 443
 
-# Add php 7 ppa
+# Add php-7.0 ppa
 RUN LC_ALL=en_US.UTF-8 add-apt-repository -y ppa:ondrej/php && apt-get update
 
 # Install php
@@ -69,10 +69,10 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/
 RUN sed -i "/# server_name_in_redirect off;/ a\fastcgi_cache_path /var/run/nginx levels=1:2 keys_zone=drm_custom_cache:16m max_size=1024m inactive=60m;" /etc/nginx/nginx.conf
 
 COPY .docker/dev/themosis/entry-point.sh /tmp/entry-point.sh
-RUN envsubst < /tmp/entry-point.sh > /entry-point.sh
+RUN mv /tmp/entry-point.sh /entry-point.sh
 RUN chmod +x entry-point.sh
 COPY .docker/dev/db/init-wordpress.sh /tmp/init-wordpress.sh
-RUN envsubst < /tmp/init-wordpress.sh > /init-wordpress.sh
+RUN mv /tmp/init-wordpress.sh /init-wordpress.sh
 RUN chmod +x init-wordpress.sh
 
 # Clean up APT when done.

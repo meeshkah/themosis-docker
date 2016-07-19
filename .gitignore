@@ -1,2 +1,2 @@
-certs/*.dev.key
-certs/*.dev.pem
+.certs/*.key
+.certs/*.pem

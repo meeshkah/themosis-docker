@@ -4,11 +4,11 @@ USER_PASS=`openssl rand -base64 8`
 cd /var/www/htdocs/cms
 if ! $(wp core is-installed --allow-root); then
   echo >&2 "Switching Wordpress on..."
-  wp core config --dbname=${MYSQL_DATABASE} \
-                 --dbuser=${MYSQL_USER} \
-                 --dbpass=${MYSQL_PASSWORD} \
+  wp core config --dbname=_MYSQL_DATABASE_ \
+                 --dbuser=_MYSQL_USER_ \
+                 --dbpass=_MYSQL_PASSWORD_ \
                  --allow-root
-  wp core install --url=http://${WP_HOME}/cms/ \
+  wp core install --url=http://_WP_HOME_/cms/ \
                   --title=Themosis \
                   --admin_user=admin \
                   --admin_password=$USER_PASS \

@@ -25,8 +25,8 @@ services:
       - db
       - cache
     volumes:
-      - ./themosis:/var/www
-      - ./.certs:/etc/nginx/certs
+      - themosis:/var/www
+      - .certs:/etc/nginx/certs
     ports:
       - "80:80"
       - "443:443"
