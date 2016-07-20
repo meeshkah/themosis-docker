@@ -6,7 +6,9 @@ set -e
 sed -i "s|_WP_HOME_|$WP_HOME|g" /etc/nginx/nginx.conf
 sed -i "s|_ENV_|development|g" /etc/nginx/nginx.conf
 
-nginx -t
+# Set www-data local permissions (STRICTLY FOR LOCAL DEV)
+usermod -u 1000 www-data
+usermod -G staff www-data
 
 # Amend php config
 sed -i "s|listen = /run/php/php7.0-fpm.sock|listen = 9000|g" /etc/php/7.0/fpm/pool.d/www.conf
@@ -23,10 +25,6 @@ cd /var/www/
 if ! [ -e .env.local.php -a -e composer.json ]; then
     echo >&2 "Themosis is not installed. Downloading..."
 
-    if [ -e .gitkeep]; then
-      rm .gitkeep
-    fi
-
     git init .
     git remote add -t \* -f origin https://github.com/themosis/themosis.git
     git checkout master
@@ -34,13 +32,13 @@ if ! [ -e .env.local.php -a -e composer.json ]; then
     echo >&2 "Installing Themosis..."
     composer up --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
-    chown -R www-data:www-data /var/www/htdocs
+    # chown -R www-data:www-data /var/www/htdocs
     cp .env.local.php .env.development.php
 
     sed -i "s|database-name|$MYSQL_DATABASE|g" .env.development.php
     sed -i "s|database-user|$MYSQL_USER|g" .env.development.php
     sed -i "s|database-password|$MYSQL_PASSWORD|g" .env.development.php
-    sed -i "s|localhost|$MYSQL_HOST|g" .env.development.php
+    sed -i "s|localhost|$MYSQL_LOCAL_HOST|g" .env.development.php
     sed -i "s|http://domain.tld|https://$WP_HOME|g" .env.development.php
 
     mv /environment.php /var/www/config/environment.php
@@ -53,6 +51,6 @@ cd /
 
 /etc/init.d/php7.0-fpm start
 
-waitforit mysql://db:3306 -t 5 -- ./init-wordpress.sh
+dockerize -wait tcp://$MYSQL_LOCAL_HOST -timeout 5s ./init-wordpress.sh
 
 exec "$@"

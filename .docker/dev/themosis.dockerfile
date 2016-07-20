@@ -46,10 +46,9 @@ RUN apt-get install -y php7.0-cli php7.0-common php7.0 php7.0-mysql php7.0-fpm p
 
 WORKDIR /
 
-# Install wait-for-it
-RUN curl -O https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
-RUN chmod +x wait-for-it.sh
-RUN mv wait-for-it.sh /usr/local/bin/waitforit
+# Install dockerize
+ENV DOCKERIZE_VERSION v0.2.0
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php

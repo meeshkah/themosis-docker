@@ -2,6 +2,7 @@
 USER_PASS=`openssl rand -base64 8`
 
 cd /var/www/htdocs
+
 if ! $(wp core is-installed --allow-root); then
   echo >&2 "Switching Wordpress on..."
   wp core config --dbname=_MYSQL_DATABASE_ \
@@ -22,4 +23,8 @@ if ! $(wp core is-installed --allow-root); then
 else
   echo >&2 "Wordpress installed. Carrying on..."
 fi
+
+echo >&2 "Switching default theme on..."
+wp theme activate $WP_THEME --allow-root
+
 cd /
