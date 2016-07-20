@@ -42,7 +42,7 @@ endif
 
 	${INFO} "Sorting out forward secrecy..."
 ifeq ($(wildcard $(ROOT_DIR)/$(CERTIFICATE_DHPARAM_FILE)),)
-	@ openssl dhparam -out $(CERTIFICATE_DHPARAM_FILE) 4096
+	@ openssl dhparam -dsaparam -out $(CERTIFICATE_DHPARAM_FILE) 4096
 else
 	${INFO} "All safe"
 endif

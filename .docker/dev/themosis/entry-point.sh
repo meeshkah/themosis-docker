@@ -32,7 +32,7 @@ if ! [ -e .env.local.php -a -e composer.json ]; then
     git checkout master
 
     echo >&2 "Installing Themosis..."
-    composer up --no-dev --no-plugins --no-scripts --prefer-dist --no-interaction --optimize-autoloader
+    composer up --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
     chown -R www-data:www-data /var/www/htdocs
     cp .env.local.php .env.development.php
@@ -40,7 +40,7 @@ if ! [ -e .env.local.php -a -e composer.json ]; then
     sed -i "s|database-name|$MYSQL_DATABASE|g" .env.development.php
     sed -i "s|database-user|$MYSQL_USER|g" .env.development.php
     sed -i "s|database-password|$MYSQL_PASSWORD|g" .env.development.php
-    sed -i "s|localhost|$WP_HOME|g" .env.development.php
+    sed -i "s|localhost|$MYSQL_HOST|g" .env.development.php
     sed -i "s|http://domain.tld|https://$WP_HOME|g" .env.development.php
 
     mv /environment.php /var/www/config/environment.php
@@ -51,6 +51,8 @@ fi
 
 cd /
 
-waitforit $WP_HOME:3306 -t 5 -- ./init-wordpress.sh
+/etc/init.d/php7.0-fpm start
+
+waitforit mysql://db:3306 -t 5 -- ./init-wordpress.sh
 
 exec "$@"

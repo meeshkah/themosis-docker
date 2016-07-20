@@ -81,5 +81,4 @@ RUN mv /tmp/environment.php /environment.php
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENTRYPOINT ["/entry-point.sh"]
-RUN service php7.0-fpm start
 CMD ["nginx", "-g", "daemon off;"]
