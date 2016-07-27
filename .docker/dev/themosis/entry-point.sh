@@ -29,8 +29,8 @@ if ! [ -e .env.local.php -a -e composer.json ]; then
     git remote add -t \* -f origin https://github.com/themosis/themosis.git
     git checkout master
 
-    echo >&2 "Installing Themosis..."
-    composer up --no-dev --prefer-dist --no-interaction --optimize-autoloader
+    # echo >&2 "Installing Themosis..."
+    # composer up --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
     # chown -R www-data:www-data /var/www/htdocs
     cp .env.local.php .env.development.php
@@ -44,13 +44,19 @@ if ! [ -e .env.local.php -a -e composer.json ]; then
     mv /environment.php /var/www/config/environment.php
     cp /var/www/config/environments/local.php /var/www/config/environments/development.php
 
-    echo >&2 "Done! Themosis has been installed"
+    echo >&2 "Done!"
+fi
+
+if ! [ -e composer.lock ]; then
+    echo >&2 "Installing dependencies..."
+    composer up --no-dev --prefer-dist --no-interaction --optimize-autoloader
+    echo >&2 "Done! Dependencies have been installed"
 fi
 
 cd /
 
 /etc/init.d/php7.0-fpm start
 
-dockerize -wait tcp://$MYSQL_LOCAL_HOST -timeout 5s ./init-wordpress.sh
+dockerize -wait tcp://$MYSQL_LOCAL_HOST ./init-wordpress.sh
 
 exec "$@"

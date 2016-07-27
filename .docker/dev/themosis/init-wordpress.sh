@@ -24,7 +24,7 @@ else
   echo >&2 "Wordpress installed. Carrying on..."
 fi
 
-echo >&2 "Switching default theme on..."
-wp theme activate $WP_THEME --allow-root
+#echo >&2 "Switching default theme on..."
+#wp theme activate $WP_THEME --allow-root
 
 cd /

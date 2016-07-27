@@ -20,7 +20,7 @@ services:
     image: themosis
     build:
       context: .
-      dockerfile: .docker/dev/themosis.dockerfile
+      dockerfile: .docker/dev/themosis/themosis.dockerfile
     depends_on:
       - db
       - cache
